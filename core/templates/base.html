@@ -50,6 +50,7 @@
             flex-direction: column;
             padding: 20px;
             min-height: 80vh;
+            width: 100%;
         }
 
         /* Toast notification styles */
@@ -95,6 +96,25 @@
             from { opacity: 0.95; }
             to { opacity: 0; transform: translateX(100%); }
         }
+
+        /* Add custom page-specific styles for the form */
+        {% block page_styles %}
+        {% endblock %}
+
+        /* Make the site responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .navbar ul {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .container {
+                width: 90%;
+            }
+        }
     </style>
     {% endblock %}    
 </head>
@@ -106,7 +126,7 @@
             {% if request.session.user_id %}
                 <!-- Navbar for Public User -->
                 <li><a href="{% url 'user_dashboard' %}">Home</a></li>
-                <li><a href="">Add Complaints</a></li>
+                <li><a href="{% url 'add_complaint' %}">Add Complaints</a></li>
                 <li><a href="">View Complaints</a></li>
                 <li><a href="">Contact</a></li>
                 <li><a href="{% url 'user_logout' %}">Logout</a></li>

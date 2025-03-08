@@ -8,19 +8,25 @@
     .dashboard-container {
         text-align: center;
         padding: 40px;
+        max-width: 600px;
+        margin: auto;
+        background-color: #222;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     .dashboard-container h2 {
-        font-size: 36px;
+        font-size: 32px;
         color: #FF5722;
         margin-bottom: 20px;
+        animation: fadeIn 1s ease-in-out;
     }
     .dashboard-container p {
         font-size: 18px;
         color: #FFFFFF;
         margin-bottom: 30px;
+        animation: slideIn 1s ease-in-out;
     }
-
-    /* Button style for Register a New Complaint */
+    
     .register-complaint-button {
         padding: 12px;
         background-color: #FF5722;
@@ -34,20 +40,47 @@
         text-align: center;
         display: inline-block;
         text-decoration: none;
+        transition: background-color 0.3s, transform 0.2s;
     }
 
     .register-complaint-button:hover {
         background-color: #E64A19;
+        transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 600px) {
+        .dashboard-container {
+            padding: 20px;
+        }
+        .dashboard-container h2 {
+            font-size: 28px;
+        }
+        .dashboard-container p {
+            font-size: 16px;
+        }
+        .register-complaint-button {
+            font-size: 14px;
+            padding: 10px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
     <div class="dashboard-container">
-        <h2>Welcome to USER Dashboard</h2>
+        <h2>Welcome, {{ request.session.user_name }}!</h2>
         <p>Manage your complaints and profile settings here.</p>
 
-        <!-- Updated button with the new style -->
         <a href="" class="button register-complaint-button">Register a New Complaint</a>
     </div>
 {% endblock %}

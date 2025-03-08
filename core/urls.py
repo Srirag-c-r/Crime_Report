@@ -10,6 +10,7 @@ urlpatterns = [
     path('register/public/', views.public_user_registration, name='public_user_registration'),
     path('register/police/', views.police_station_registration, name='police_station_registration'),
     
+    
     # OTP verification
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     
@@ -27,4 +28,9 @@ urlpatterns = [
     
     # Police station logout
     path('police_station/logout/', views.police_station_logout, name='police_logout'),  # Add this line
+    #path('add-complaint/', views.add_complaint, name='add_complaint'),
+    path('complaint/add/', views.add_complaint, name='add_complaint')
+
+    
 ]
+
