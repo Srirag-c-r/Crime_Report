@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+<<<<<<< HEAD
 {% block title %}Register Complaint - Safe Call{% endblock %}
 
 {% block styles %}
@@ -204,4 +205,87 @@
             });
     }
 </script>
+=======
+{% block content %}
+<h2>Add Complaint</h2>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div>
+        <label for="district">Choose District</label>
+        <select name="district" id="district" required>
+            <option value="">Select District</option>
+            {% for station in police_stations %}
+                <option value="{{ station.id }}">{{ station.district }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div>
+        <label for="location">Choose Location</label>
+        <select name="location" id="location" required>
+            <option value="">Select Location</option>
+            {% for station in police_stations %}
+                <option value="{{ station.id }}">{{ station.location }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div>
+        <label for="complaint_type">Choose Complaint Type</label>
+        <select name="complaint_type" id="complaint_type" required>
+            <option value="robbery">Robbery</option>
+            <option value="assault">Assault</option>
+            <option value="theft">Theft</option>
+            <option value="burglary">Burglary</option>
+            <option value="fraud">Fraud</option>
+            <option value="domestic_violence">Domestic Violence</option>
+            <option value="sexual_assault">Sexual Assault</option>
+            <option value="murder">Murder</option>
+            <option value="other">Other</option>
+        </select>
+    </div>
+    
+    <div>
+        <label for="incident_date">Incident Date</label>
+        <input type="date" name="incident_date" id="incident_date" required>
+        <small class="form-text text-muted">Format: YYYY-MM-DD</small>
+    </div>
+    
+    <div>
+        <label for="description">Description</label>
+        <textarea name="description" id="description" rows="4" required></textarea>
+    </div>
+    
+    <div>
+        <label for="evidence">Evidence (Optional)</label>
+        <input type="file" name="evidence" id="evidence">
+    </div>
+    
+    <div>
+        <label for="time_of_incident">Time of Incident</label>
+        <select name="time_of_incident" id="time_of_incident" required>
+            <option value="midnight">12:00 AM - 12:59 AM</option>
+            <option value="morning">6:00 AM - 11:59 AM</option>
+            <option value="noon">12:00 PM - 12:59 PM</option>
+            <option value="afternoon">1:00 PM - 5:59 PM</option>
+            <option value="evening">6:00 PM - 8:59 PM</option>
+            <option value="night">9:00 PM - 11:59 PM</option>
+        </select>
+    </div>
+    
+    <button type="submit">Submit Complaint</button>
+</form>
+
+>>>>>>> cc6f227bb75c78cb8b5dc124c344339314546e8b
 {% endblock %}

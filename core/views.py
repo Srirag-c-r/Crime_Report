@@ -3,7 +3,8 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
-from .models import PublicUser, PoliceStation
+from django.utils import timezone
+from .models import PublicUser, PoliceStation, Complaint
 import random
 import string
 
@@ -12,8 +13,6 @@ import string
 def generate_otp():
     return ''.join(random.choices(string.digits, k=6))
 
-from django.shortcuts import render, redirect
-# other imports
 
 # Register Page View
 def register(request):
@@ -86,6 +85,13 @@ def verify_otp(request):
 
 
 # Police Station Registration View
+# Police Station Registration View
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from .models import PoliceStation
+
+# Police Station Registration View
 def police_station_registration(request):
     if request.method == 'POST':
         district = request.POST.get('district')
@@ -115,6 +121,7 @@ def police_station_registration(request):
     return render(request, 'register.html', {'is_police_station': True})
 
 
+
 # Login View (General login page)
 def login_view(request):
     if request.method == 'POST':
@@ -139,6 +146,8 @@ def user_login(request):
             user = PublicUser.objects.get(email=email)  # Fetch user by email
             if check_password(password, user.password):  # Verify password
                 request.session['user_id'] = user.id  # Store user ID in session
+                request.session['user_name'] = f"{user.first_name} {user.last_name}"  # Store full name
+                
                 messages.success(request, 'Login successful.')
                 return redirect('user_dashboard')  # Redirect to user dashboard
             else:
@@ -153,7 +162,7 @@ def user_login(request):
 # Police Station Login
 def police_station_login(request):
     if request.method == 'POST':
-        email = request.POST.get('email')  # Get email instead of contact
+        email = request.POST.get('email')
         password = request.POST.get('password')
 
         try:
@@ -165,11 +174,20 @@ def police_station_login(request):
                 return redirect('police_station_login')
 
             if check_password(password, police_station.password):
-                request.session['police_station_id'] = police_station.id  # Store police station ID in session
-                messages.success(request, 'Login successful as Police Station.')
-                return redirect('police_station_dashboard')
+                # Check if the police station is approved
+                if police_station.is_approved:
+                    # Store necessary session data
+                    request.session['police_station_id'] = police_station.id
+                    request.session['police_station_branch'] = f"{police_station.district} - {police_station.location}"
+                    
+                    messages.success(request, 'Login successful as Police Station.')
+                    return redirect('police_station_dashboard')
+                else:
+                    # If not approved, show an error message
+                    messages.error(request, 'Your police station account is not approved yet. Please contact the admin.')
             else:
                 messages.error(request, 'Invalid login credentials. Please try again.')
+
         except PoliceStation.DoesNotExist:
             messages.error(request, 'Invalid login credentials. Please try again.')
 
@@ -193,6 +211,8 @@ def user_logout(request):
     messages.success(request, "You have successfully logged out.")
     return redirect('login')
 
+
+# Police Station Logout
 def police_station_logout(request):
     request.session.flush()  # Clears session
     messages.success(request, "You have successfully logged out as Police Station.")

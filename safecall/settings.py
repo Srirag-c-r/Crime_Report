@@ -108,6 +108,9 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+# Date format settings
+DATE_INPUT_FORMATS = ['%Y-%m-%d']  # Only accept YYYY-MM-DD format
+
 USE_I18N = True
 
 USE_TZ = True
@@ -116,11 +119,29 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
 
+
+
+# settings.py
+
+import os
+
+# Path to where static files will be collected
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Other static settings...
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # For local static files
+    os.path.join(BASE_DIR, 'static'),
 ]
+
+
+# settings.py
+
+# For handling file uploads
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

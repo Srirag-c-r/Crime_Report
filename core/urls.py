@@ -10,6 +10,7 @@ urlpatterns = [
     path('register/public/', views.public_user_registration, name='public_user_registration'),
     path('register/police/', views.police_station_registration, name='police_station_registration'),
     
+    
     # OTP verification
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     
@@ -31,3 +32,4 @@ urlpatterns = [
     path('user/view-complaints/', views.view_complaints, name='view_complaints'),
     path('get-locations/', views.get_locations, name='get_locations'),
 ]
+

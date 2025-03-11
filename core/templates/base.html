@@ -50,6 +50,7 @@
             flex-direction: column;
             padding: 20px;
             min-height: 80vh;
+            width: 100%;
         }
 
         /* Toast notification styles */
@@ -94,6 +95,25 @@
         @keyframes fade-out {
             from { opacity: 0.95; }
             to { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* Add custom page-specific styles for the form */
+        {% block page_styles %}
+        {% endblock %}
+
+        /* Make the site responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .navbar ul {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .container {
+                width: 90%;
+            }
         }
     </style>
     {% endblock %}    
