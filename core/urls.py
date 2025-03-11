@@ -27,4 +27,7 @@ urlpatterns = [
     
     # Police station logout
     path('police_station/logout/', views.police_station_logout, name='police_logout'),  # Add this line
+    path('user/add-complaint/', views.add_complaint, name='add_complaint'),
+    path('user/view-complaints/', views.view_complaints, name='view_complaints'),
+    path('get-locations/', views.get_locations, name='get_locations'),
 ]

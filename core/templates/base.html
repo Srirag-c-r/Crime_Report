@@ -106,7 +106,7 @@
             {% if request.session.user_id %}
                 <!-- Navbar for Public User -->
                 <li><a href="{% url 'user_dashboard' %}">Home</a></li>
-                <li><a href="">Add Complaints</a></li>
+                <li><a href="{% url 'add_complaint' %}">Add Complaints</a></li>
                 <li><a href="">View Complaints</a></li>
                 <li><a href="">Contact</a></li>
                 <li><a href="{% url 'user_logout' %}">Logout</a></li>

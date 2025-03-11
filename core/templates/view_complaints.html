@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}My Complaints - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .complaints-container {
+        max-width: 1000px;
+        width: 100%;
+    }
+    .complaints-header {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #4CAF50;
+        text-align: center;
+    }
+    .no-complaints {
+        text-align: center;
+        background-color: #1E1E1E;
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .complaint-card {
+        background-color: #1E1E1E;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    .complaint-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+    }
+    .complaint-id {
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .complaint-date {
+        font-size: 14px;
+        color: #999;
+    }
+    .complaint-status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .status-pending {
+        background-color: #FFC107;
+        color: black;
+    }
+    .status-under-investigation {
+        background-color: #2196F3;
+        color: white;
+    }
+    .status-resolved {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .status-rejected {
+        background-color: #F44336;
+        color: white;
+    }
+    .complaint-details {
+        margin-top: 15px;
+    }
+    .complaint-row {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    .complaint-label {
+        font-weight: bold;
+        width: 180px;
+        color: #ccc;
+    }
+    .complaint-value {
+        flex: 1;
+    }
+    .complaint-description {
+        background-color: #2C2C2C;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 10px;
+        white-space: pre-line;
+    }
+    .complaint-evidence {
+        margin-top: 15px;
+    }
+    .evidence-link {
+        display: inline-block;
+        background-color: #333;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    .evidence-link:hover {
+        background-color: #444;
+    }
+    .btn-new-complaint {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s;
+    }
+    .btn-new-complaint:hover {
+        background-color: #3e8e41;
+    }
+    .pagination {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }
+    .pagination li {
+        margin: 0 5px;
+    }
+    .pagination li a {
+        display: block;
+        padding: 8px 15px;
+        background-color: #333;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    .pagination li.active a {
+        background-color: #4CAF50;
+    }
+    .pagination li a:hover {
+        background-color: #444;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="complaints-container">
+    <h2 class="complaints-header">My Complaints</h2>
+    
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="{% url 'add_complaint' %}" class="btn-new-complaint">+ Register New Complaint</a>
+    </div>
+    
+    {% if complaints %}
+        {% for complaint in complaints %}
+            <div class="complaint-card">
+                <div class="complaint-header">
+                    <div class="complaint-id">Complaint #{{ complaint.id }}</div>
+                    <div class="complaint-date">Filed on: {{ complaint.created_at|date:"F d, Y" }} at {{ complaint.created_at|time:"h:i A" }}</div>
+                </div>
+                
+                <div class="complaint-status-container" style="margin-bottom: 15px;">
+                    Status: 
+                    {% if complaint.status == "PENDING" %}
+                        <span class="complaint-status status-pending">Pending</span>
+                    {% elif complaint.status == "UNDER_INVESTIGATION" %}
+                        <span class="complaint-status status-under-investigation">Under Investigation</span>
+                    {% elif complaint.status == "RESOLVED" %}
+                        <span class="complaint-status status-resolved">Resolved</span>
+                    {% elif complaint.status == "REJECTED" %}
+                        <span class="complaint-status status-rejected">Rejected</span>
+                    {% endif %}
+                </div>
+                
+                <div class="complaint-details">
+                    <div class="complaint-row">
+                        <div class="complaint-label">Complaint Type:</div>
+                        <div class="complaint-value">{{ complaint.get_complaint_type_display }}</div>
+                    </div>
+                    
+                    <div class="complaint-row">
+                        <div class="complaint-label">Police Station:</div>
+                        <div class="complaint-value">{{ complaint.police_station.location }}, {{ complaint.police_station.district }}</div>
+                    </div>
+                    
+                    <div class="complaint-row">
+                        <div class="complaint-label">Incident Date:</div>
+                        <div class="complaint-value">{{ complaint.incident_date|date:"F d, Y" }}</div>
+                    </div>
+                    
+                    <div class="complaint-row">
+                        <div class="complaint-label">Incident Time:</div>
+                        <div class="complaint-value">{{ complaint.get_incident_time_display }}</div>
+                    </div>
+                    
+                    <div class="complaint-row">
+                        <div class="complaint-label">Description:</div>
+                    </div>
+                    <div class="complaint-description">{{ complaint.description }}</div>
+                    
+                    {% if complaint.evidence %}
+                    <div class="complaint-evidence">
+                        <div class="complaint-row">
+                            <div class="complaint-label">Evidence:</div>
+                            <div class="complaint-value">
+                                <a href="{{ complaint.evidence.url }}" target="_blank" class="evidence-link">View Evidence</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        
+        <!-- Pagination could go here if needed -->
+        
+    {% else %}
+        <div class="no-complaints">
+            <p>You haven't filed any complaints yet.</p>
+            <a href="{% url 'add_complaint' %}" class="btn-new-complaint" style="margin-top: 15px;">Register Your First Complaint</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

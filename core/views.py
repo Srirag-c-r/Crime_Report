@@ -150,6 +150,7 @@ def user_login(request):
 
 
 # Police Station Login
+# Police Station Login
 def police_station_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')  # Get email instead of contact
@@ -157,6 +158,12 @@ def police_station_login(request):
 
         try:
             police_station = PoliceStation.objects.get(email=email)  # Lookup using email
+            
+            # Check if the police station is approved
+            if not police_station.approved:
+                messages.error(request, 'Your account has not been approved by the admin yet.')
+                return redirect('police_station_login')
+
             if check_password(password, police_station.password):
                 request.session['police_station_id'] = police_station.id  # Store police station ID in session
                 messages.success(request, 'Login successful as Police Station.')
@@ -167,6 +174,7 @@ def police_station_login(request):
             messages.error(request, 'Invalid login credentials. Please try again.')
 
     return render(request, 'police_station_login.html')
+
 
 
 # User Dashboard View
@@ -189,3 +197,110 @@ def police_station_logout(request):
     request.session.flush()  # Clears session
     messages.success(request, "You have successfully logged out as Police Station.")
     return redirect('login')  # Redirect to login page or a suitable page
+
+
+# Add these imports at the top of your views.py
+from django.http import JsonResponse
+from .models import PublicUser, PoliceStation, Complaint
+from django.utils import timezone
+from django.core.files.storage import default_storage
+import json
+
+# Add Complaint View
+def add_complaint(request):
+    # Check if user is logged in
+    if 'user_id' not in request.session:
+        messages.error(request, "You must be logged in to register a complaint.")
+        return redirect('login')
+        
+    # Get the user
+    try:
+        user = PublicUser.objects.get(id=request.session['user_id'])
+    except PublicUser.DoesNotExist:
+        messages.error(request, "User account not found.")
+        return redirect('login')
+    
+    if request.method == 'POST':
+        # Get form data
+        police_station_id = request.POST.get('police_station')
+        complaint_type = request.POST.get('complaint_type')
+        description = request.POST.get('description')
+        incident_date = request.POST.get('incident_date')
+        incident_time = request.POST.get('incident_time')
+        
+        # Validate required fields
+        if not all([police_station_id, complaint_type, description, incident_date, incident_time]):
+            messages.error(request, "All fields are required except evidence.")
+            return redirect('add_complaint')
+        
+        try:
+            # Get the police station
+            police_station = PoliceStation.objects.get(id=police_station_id)
+            
+            # Create complaint object
+            complaint = Complaint(
+                user=user,
+                police_station=police_station,
+                complaint_type=complaint_type,
+                description=description,
+                incident_date=incident_date,
+                incident_time=incident_time,
+                status=Complaint.STATUS_PENDING,
+            )
+            
+            # Handle evidence file if provided
+            if 'evidence' in request.FILES:
+                evidence_file = request.FILES['evidence']
+                complaint.evidence = evidence_file
+            
+            # Save the complaint
+            complaint.save()
+            
+            messages.success(request, "Your complaint has been registered successfully. The reference number is #" + str(complaint.id))
+            return redirect('view_complaints')
+            
+        except PoliceStation.DoesNotExist:
+            messages.error(request, "Selected police station not found.")
+            return redirect('add_complaint')
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return redirect('add_complaint')
+    
+    # For GET request, prepare data for the form
+    # Get districts for dropdown
+    districts = PoliceStation.objects.values_list('district', flat=True).distinct()
+    
+    # Initial context without locations
+    context = {
+        'districts': districts,
+        'complaint_types': Complaint.TYPE_CHOICES,
+        'time_choices': Complaint.TIME_CHOICES
+    }
+    
+    return render(request, 'add_complaint.html', context)
+
+# Get locations for a district (AJAX endpoint)
+def get_locations(request):
+    if request.method == 'GET':
+        district = request.GET.get('district')
+        if district:
+            locations = PoliceStation.objects.filter(district=district).values('id', 'location')
+            return JsonResponse(list(locations), safe=False)
+    return JsonResponse([], safe=False)
+
+# View User Complaints
+def view_complaints(request):
+    # Check if user is logged in
+    if 'user_id' not in request.session:
+        messages.error(request, "You must be logged in to view complaints.")
+        return redirect('login')
+        
+    # Get the user
+    try:
+        user = PublicUser.objects.get(id=request.session['user_id'])
+        # Get all complaints for this user
+        complaints = Complaint.objects.filter(user=user).order_by('-created_at')
+        return render(request, 'view_complaints.html', {'complaints': complaints})
+    except PublicUser.DoesNotExist:
+        messages.error(request, "User account not found.")
+        return redirect('login')
